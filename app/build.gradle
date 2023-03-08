@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "net.micode.notes"
         minSdkVersion 14
-        targetSdkVersion 14
+        targetSdkVersion 31
     }
 
     buildTypes {
@@ -25,9 +25,9 @@ android {
         exclude 'META-INF/LICENSE.txt'
     }
 
-    dependencies {
-        implementation files('..\\httpcomponents-client\\lib\\httpclient-osgi-4.5.13.jar')
-        implementation files('..\\httpcomponents-client\\lib\\httpclient-win-4.5.13.jar')
-        implementation files('..\\httpcomponents-client\\lib\\httpcore-4.4.13.jar')
-    }
+//    dependencies {
+//        implementation files('..\\httpcomponents-client\\lib\\httpclient-osgi-4.5.13.jar')
+//        implementation files('..\\httpcomponents-client\\lib\\httpclient-win-4.5.13.jar')
+//        implementation files('..\\httpcomponents-client\\lib\\httpcore-4.4.13.jar')
+//    }
 }

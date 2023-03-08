@@ -1,4 +1,4 @@
-#Thu Mar 02 09:22:36 CST 2023
-base.0=D\:\\Users\\Liuwq\\OneDrive\\Codefield\\AndroidStudioProjects\\Notes-master\\app\\build\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+#Thu Mar 02 15:30:00 CST 2023
+base.0=/Users/huangyi/Documents/SE/project/SEProject/app/build/intermediates/dex/debug/mergeDexDebug/classes.dex
 renamed.0=classes.dex
 path.0=classes.dex
