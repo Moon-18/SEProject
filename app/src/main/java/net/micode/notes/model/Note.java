@@ -146,7 +146,7 @@ public class Note {
     /**
      * @author:  Yi Huang
      * @methodsName: setCallDataId
-     * @description: 设置呼叫数据的ID
+     * @description: 设置通话数据的ID
      * @param: long id 要被设置的id
      * @return: void
      * @throws:
@@ -158,7 +158,7 @@ public class Note {
     /**
      * @author:  Yi Huang
      * @methodsName: setCallData
-     * @description: 修改呼叫数据
+     * @description: 修改通话数据
      * @param: String key 被设置的属性, String value 被设置的值
      * @return: void
      * @throws:
@@ -211,7 +211,7 @@ public class Note {
         }
         mNoteDiffValues.clear(); // 同步完成后，清空mNoteDiffValues
 
-        // 若mNoteData被本地修改，但未能加入ContentResolver，则同步失败
+        // 若mNoteData被本地修改，则同步mNoteData。若同步失败，返回False
         if (mNoteData.isLocalModified()
                 && (mNoteData.pushIntoContentResolver(context, noteId) == null)) {
             return false;
@@ -224,7 +224,7 @@ public class Note {
      * @author: Yi Huang
      * @className: NoteData
      * @packageName: model
-     * @description: 描述便签数据的类；便签数据具体包括文本数据和呼叫数据
+     * @description: 描述便签数据的类；便签数据具体包括文本数据和通话数据
      * @data: 2023-03-07
      **/
     private class NoteData {
@@ -283,7 +283,7 @@ public class Note {
         /**
          * @author:  Yi Huang
          * @methodsName: setCallDataId
-         * @description: 设置呼叫数据的ID
+         * @description: 设置通话数据的ID
          * @param: long id
          * @return: void
          * @throws: IllegalArgumentException
@@ -298,7 +298,7 @@ public class Note {
         /**
          * @author:  Yi Huang
          * @methodsName: setCallData
-         * @description: 修改呼叫数据
+         * @description: 修改通话数据
          * @param: String key 被修改的属性, String value 要改成的目标值
          * @return: void
          * @throws:
@@ -326,7 +326,7 @@ public class Note {
         /**
          * @author:  Yi Huang
          * @methodsName: pushIntoContentResolver
-         * @description: 把文本数据和呼叫数据同步到数据库,若返回空，则说明同步失败
+         * @description: 把文本数据和通话数据同步到数据库,若返回空，则说明同步失败
          * @param: Context context, long noteId
          * @return: Uri
          * @throws: IllegalArgumentException
@@ -365,7 +365,7 @@ public class Note {
                 mTextDataValues.clear();
             }
 
-            // 同步呼叫数据
+            // 同步通话数据
             if(mCallDataValues.size() > 0) {
                 mCallDataValues.put(DataColumns.NOTE_ID, noteId);
                 if (mCallDataId == 0) {
