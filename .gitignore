@@ -13,7 +13,7 @@ project.properties
 .idea/
 gradle/
 httpcomponents-client/
-res/
+/res/
 /src/
 app/build/
 
