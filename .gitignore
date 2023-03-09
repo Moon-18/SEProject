@@ -7,3 +7,11 @@ project.properties
 .settings/
 .classpath
 .project
+# 只保留源代码目录，其余不保留
+
+.gradle/
+.idea/
+gradle/
+httpcomponents-clint/
+res/
+src/
