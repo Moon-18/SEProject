@@ -16,7 +16,7 @@ httpcomponents-client/
 res/
 /src/
 app/build/
-AndroidManifest.xml
+
 build.gradle
 gradlew
 gradlew.bat
