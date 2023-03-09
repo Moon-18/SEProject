@@ -16,3 +16,11 @@ httpcomponents-client/
 res/
 /src/
 app/build/
+AndroidManifest.xml
+build.gradle
+gradlew
+gradlew.bat
+import-summary.txt
+local.properties
+NOTICE
+settings.gradle
