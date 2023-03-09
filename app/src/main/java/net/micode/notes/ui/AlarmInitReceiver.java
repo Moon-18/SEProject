@@ -27,26 +27,33 @@ import android.database.Cursor;
 import net.micode.notes.data.Notes;
 import net.micode.notes.data.Notes.NoteColumns;
 
-
+/**
+ * @version: V1.0
+ * @author: gmy
+ * @className: AlarmInitReceiver
+ * @packageName: ui
+ * @description: 这是提醒初始化类，继承自BroadcastReceiver
+ * @date: 2023年3月9日18:52:06
+ **/
 public class AlarmInitReceiver extends BroadcastReceiver {
-
-    private static final String [] PROJECTION = new String [] {
-        NoteColumns.ID,
-        NoteColumns.ALERTED_DATE
+    // 操作数据库，调用标签ID和闹钟时间
+    private static final String[] PROJECTION = new String[] {
+            NoteColumns.ID,
+            NoteColumns.ALERTED_DATE
     };
 
-    private static final int COLUMN_ID                = 0;
-    private static final int COLUMN_ALERTED_DATE      = 1;
+    private static final int COLUMN_ID = 0;
+    private static final int COLUMN_ALERTED_DATE = 1;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        long currentDate = System.currentTimeMillis();
+        long currentDate = System.currentTimeMillis();// System.currentTimeMillis()产生一个当前的毫秒
         Cursor c = context.getContentResolver().query(Notes.CONTENT_NOTE_URI,
                 PROJECTION,
                 NoteColumns.ALERTED_DATE + ">? AND " + NoteColumns.TYPE + "=" + Notes.TYPE_NOTE,
                 new String[] { String.valueOf(currentDate) },
-                null);
-
+                null);// 将long变量currentDate转化为字符串
+        // Cursor在这里的作用是通过查找数据库中的标签内容，找到和当前系统时间相等的标签
         if (c != null) {
             if (c.moveToFirst()) {
                 do {
@@ -61,5 +68,6 @@ public class AlarmInitReceiver extends BroadcastReceiver {
             }
             c.close();
         }
+        // gmy查阅晚上的资料,大意为根据数据库里的闹钟创建一个闹钟机制
     }
 }

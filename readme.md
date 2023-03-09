@@ -4,6 +4,8 @@
 
 调整了目录结构，忽略了无关文件
 
+"feat:2023年3月9日22:56:56  gmy读了AlarmAlertActivity类,和AlarmInitReceiver"
+
 [中文]
 
 1. MiCode便签是小米便签的社区开源版，由MIUI团队(www.miui.com) 发起并贡献第一批代码，遵循NOTICE文件所描述的开源协议，
