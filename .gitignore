@@ -12,6 +12,6 @@ project.properties
 .gradle/
 .idea/
 gradle/
-httpcomponents-clint/
+httpcomponents-client/
 res/
 src/
