@@ -14,5 +14,5 @@ project.properties
 gradle/
 httpcomponents-client/
 res/
-src/
+/src/
 app/build/
