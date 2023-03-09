@@ -15,3 +15,4 @@ gradle/
 httpcomponents-client/
 res/
 src/
+app/build/
