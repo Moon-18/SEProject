@@ -40,7 +40,7 @@ import net.micode.notes.tool.DataUtils;
 import java.io.IOException;
 
  /* @author: gmy
- * @className: NoteEditText
+ * @className: AlarmAlertActivity
  * @packageName: ui
  * @description: 这是警报类，继承自Activity父类，实现了OnClickListener, OnDismissListener两个接口
  * @date: 2023年3月9日22:31:47
