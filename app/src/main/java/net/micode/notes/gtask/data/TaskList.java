@@ -30,19 +30,30 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
+/**
+ * 此类为Task列表，用于存储Task对象
+ */
 public class TaskList extends Node {
-    private static final String TAG = TaskList.class.getSimpleName();
+    private static final String TAG = TaskList.class.getSimpleName();   // 类名标记
 
-    private int mIndex;
+    private int mIndex; // 当前List指针
 
-    private ArrayList<Task> mChildren;
+    private ArrayList<Task> mChildren;  // 存储Task对象的List
 
+    /**
+     * 构造函数
+     */
     public TaskList() {
         super();
         mChildren = new ArrayList<Task>();
         mIndex = 1;
     }
 
+    /**
+     * 给定id，创建一个JSON对象，并添加相应信息
+     * @param actionId
+     * @return
+     */
     public JSONObject getCreateAction(int actionId) {
         JSONObject js = new JSONObject();
 
@@ -74,6 +85,10 @@ public class TaskList extends Node {
         return js;
     }
 
+    /**
+     * 依据actionId及当前TaskList对象生成一个JSON对象并返回
+     * 与上一方法的不同之处在于此处将自身响应值copy到新的JSON对象中
+     */
     public JSONObject getUpdateAction(int actionId) {
         JSONObject js = new JSONObject();
 
@@ -103,6 +118,9 @@ public class TaskList extends Node {
         return js;
     }
 
+    /**
+     * 给定远程JSON对象，为当前JSON对象设置相应信息
+     */
     public void setContentByRemoteJSON(JSONObject js) {
         if (js != null) {
             try {
@@ -129,14 +147,19 @@ public class TaskList extends Node {
         }
     }
 
+    /**
+     * 给定本地JSON对象，为当前JSON对象设置相应信息
+     */
     public void setContentByLocalJSON(JSONObject js) {
-        if (js == null || !js.has(GTaskStringUtils.META_HEAD_NOTE)) {
+        if (js == null || !js.has(GTaskStringUtils.META_HEAD_NOTE)) {   // 给定JSON对象为空时记录到log中
             Log.w(TAG, "setContentByLocalJSON: nothing is avaiable");
         }
 
         try {
-            JSONObject folder = js.getJSONObject(GTaskStringUtils.META_HEAD_NOTE);
+            JSONObject folder = js.getJSONObject(GTaskStringUtils.META_HEAD_NOTE);  // 获取该键值对应的对象
 
+            // 符合条件时进行设置
+            // todo 暂时不理解
             if (folder.getInt(NoteColumns.TYPE) == Notes.TYPE_FOLDER) {
                 String name = folder.getString(NoteColumns.SNIPPET);
                 setName(GTaskStringUtils.MIUI_FOLDER_PREFFIX + name);
@@ -157,13 +180,16 @@ public class TaskList extends Node {
         }
     }
 
+    /**
+     * 根据当前内容获取JSON对象
+     */
     public JSONObject getLocalJSONFromContent() {
         try {
             JSONObject js = new JSONObject();
             JSONObject folder = new JSONObject();
 
             String folderName = getName();
-            if (getName().startsWith(GTaskStringUtils.MIUI_FOLDER_PREFFIX))
+            if (getName().startsWith(GTaskStringUtils.MIUI_FOLDER_PREFFIX)) // 符合条件时进行设置
                 folderName = folderName.substring(GTaskStringUtils.MIUI_FOLDER_PREFFIX.length(),
                         folderName.length());
             folder.put(NoteColumns.SNIPPET, folderName);
@@ -173,7 +199,7 @@ public class TaskList extends Node {
             else
                 folder.put(NoteColumns.TYPE, Notes.TYPE_FOLDER);
 
-            js.put(GTaskStringUtils.META_HEAD_NOTE, folder);
+            js.put(GTaskStringUtils.META_HEAD_NOTE, folder);    // 将folder存入js中
 
             return js;
         } catch (JSONException e) {
@@ -183,6 +209,9 @@ public class TaskList extends Node {
         }
     }
 
+    /**
+     * 与云端数据进行同步
+     */
     public int getSyncAction(Cursor c) {
         try {
             if (c.getInt(SqlNote.LOCAL_MODIFIED_COLUMN) == 0) {
@@ -216,43 +245,52 @@ public class TaskList extends Node {
         return SYNC_ACTION_ERROR;
     }
 
+    /**
+     * 查看当前TaskList中的Task数量
+     */
     public int getChildTaskCount() {
         return mChildren.size();
     }
 
+    /**
+     * 向TaskList中添加Task
+     */
     public boolean addChildTask(Task task) {
         boolean ret = false;
-        if (task != null && !mChildren.contains(task)) {
+        if (task != null && !mChildren.contains(task)) {    // 当要要添加的task不为null且不在TaskList中时
             ret = mChildren.add(task);
-            if (ret) {
+            if (ret) {  // 添加成功时
                 // need to set prior sibling and parent
                 task.setPriorSibling(mChildren.isEmpty() ? null : mChildren
-                        .get(mChildren.size() - 1));
-                task.setParent(this);
+                        .get(mChildren.size() - 1));    // 设置前置对象
+                task.setParent(this);   // 设置父节点为this
             }
         }
         return ret;
     }
 
+    /**
+     * 在TaskList给定index处添加Task
+     */
     public boolean addChildTask(Task task, int index) {
-        if (index < 0 || index > mChildren.size()) {
+        if (index < 0 || index > mChildren.size()) {    // 判断index是否越界
             Log.e(TAG, "add child task: invalid index");
             return false;
         }
 
-        int pos = mChildren.indexOf(task);
-        if (task != null && pos == -1) {
-            mChildren.add(index, task);
+        int pos = mChildren.indexOf(task);  // 找到当前index位置的task
+        if (task != null && pos == -1) {    // 找到时
+            mChildren.add(index, task); // 添加
 
             // update the task list
             Task preTask = null;
             Task afterTask = null;
-            if (index != 0)
+            if (index != 0) // 获取前置和后置任务
                 preTask = mChildren.get(index - 1);
             if (index != mChildren.size() - 1)
                 afterTask = mChildren.get(index + 1);
 
-            task.setPriorSibling(preTask);
+            task.setPriorSibling(preTask);  // 更新指针
             if (afterTask != null)
                 afterTask.setPriorSibling(task);
         }
@@ -260,13 +298,16 @@ public class TaskList extends Node {
         return true;
     }
 
+    /**
+     * 删除TaskList中的任务
+     */
     public boolean removeChildTask(Task task) {
         boolean ret = false;
-        int index = mChildren.indexOf(task);
-        if (index != -1) {
-            ret = mChildren.remove(task);
+        int index = mChildren.indexOf(task);    // 查找要删除的task所对应的index
+        if (index != -1) {  // 找到时
+            ret = mChildren.remove(task);   // 移除
 
-            if (ret) {
+            if (ret) {  // 移除成功，修改指针
                 // reset prior sibling and parent
                 task.setPriorSibling(null);
                 task.setParent(null);
@@ -281,48 +322,63 @@ public class TaskList extends Node {
         return ret;
     }
 
+    /**
+     * 移动task在TaskList中的位置
+     */
     public boolean moveChildTask(Task task, int index) {
 
-        if (index < 0 || index >= mChildren.size()) {
+        if (index < 0 || index >= mChildren.size()) {   // 判断是否越界
             Log.e(TAG, "move child task: invalid index");
             return false;
         }
 
-        int pos = mChildren.indexOf(task);
-        if (pos == -1) {
+        int pos = mChildren.indexOf(task);  // 找到对应的索引
+        if (pos == -1) {    // 未找到
             Log.e(TAG, "move child task: the task should in the list");
             return false;
         }
 
-        if (pos == index)
+        if (pos == index)   // 无需移动
             return true;
-        return (removeChildTask(task) && addChildTask(task, index));
+        return (removeChildTask(task) && addChildTask(task, index));    // 删除后在相应位置插入
     }
 
+    /**
+     * 依据Gid查找task
+     */
     public Task findChildTaskByGid(String gid) {
-        for (int i = 0; i < mChildren.size(); i++) {
+        for (int i = 0; i < mChildren.size(); i++) {    // 遍历
             Task t = mChildren.get(i);
-            if (t.getGid().equals(gid)) {
+            if (t.getGid().equals(gid)) {   // 对应则找到
                 return t;
             }
         }
-        return null;
+        return null;    // 未找到
     }
 
+    /**
+     * 获取指定task的index
+     */
     public int getChildTaskIndex(Task task) {
         return mChildren.indexOf(task);
     }
 
+    /**
+     * 依据index查找task
+     */
     public Task getChildTaskByIndex(int index) {
-        if (index < 0 || index >= mChildren.size()) {
+        if (index < 0 || index >= mChildren.size()) {   // 判断是否越界
             Log.e(TAG, "getTaskByIndex: invalid index");
             return null;
         }
         return mChildren.get(index);
     }
 
+    /**
+     * 依据Gid查找task
+     */
     public Task getChilTaskByGid(String gid) {
-        for (Task task : mChildren) {
+        for (Task task : mChildren) {   // 不同实现？？？
             if (task.getGid().equals(gid))
                 return task;
         }
