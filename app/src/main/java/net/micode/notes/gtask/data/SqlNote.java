@@ -37,12 +37,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-
+/**
+ * 与数据库有关的操作
+ */
 public class SqlNote {
     private static final String TAG = SqlNote.class.getSimpleName();
 
     private static final int INVALID_ID = -99999;
 
+    // NoteColumns中的常量
     public static final String[] PROJECTION_NOTE = new String[] {
             NoteColumns.ID, NoteColumns.ALERTED_DATE, NoteColumns.BG_COLOR_ID,
             NoteColumns.CREATED_DATE, NoteColumns.HAS_ATTACHMENT, NoteColumns.MODIFIED_DATE,
@@ -52,6 +55,7 @@ public class SqlNote {
             NoteColumns.VERSION
     };
 
+    // 上述常量对应列的编号
     public static final int ID_COLUMN = 0;
 
     public static final int ALERTED_DATE_COLUMN = 1;
@@ -86,6 +90,7 @@ public class SqlNote {
 
     public static final int VERSION_COLUMN = 16;
 
+    // 类内变量
     private Context mContext;
 
     private ContentResolver mContentResolver;
@@ -122,6 +127,9 @@ public class SqlNote {
 
     private ArrayList<SqlData> mDataList;
 
+    /**
+     * 构造函数，初始化为默认值
+     */
     public SqlNote(Context context) {
         mContext = context;
         mContentResolver = context.getContentResolver();
@@ -129,9 +137,9 @@ public class SqlNote {
         mId = INVALID_ID;
         mAlertDate = 0;
         mBgColorId = ResourceParser.getDefaultBgId(context);
-        mCreatedDate = System.currentTimeMillis();
+        mCreatedDate = System.currentTimeMillis();  // 创建时间
         mHasAttachment = 0;
-        mModifiedDate = System.currentTimeMillis();
+        mModifiedDate = System.currentTimeMillis(); // 修改时间
         mParentId = 0;
         mSnippet = "";
         mType = Notes.TYPE_NOTE;
@@ -143,17 +151,23 @@ public class SqlNote {
         mDataList = new ArrayList<SqlData>();
     }
 
+    /**
+     * 构造函数，从cursor处读入数据
+     */
     public SqlNote(Context context, Cursor c) {
         mContext = context;
         mContentResolver = context.getContentResolver();
         mIsCreate = false;
-        loadFromCursor(c);
+        loadFromCursor(c);  // 借助c读入数据
         mDataList = new ArrayList<SqlData>();
         if (mType == Notes.TYPE_NOTE)
             loadDataContent();
         mDiffNoteValues = new ContentValues();
     }
 
+    /**
+     * 构造函数，借助id进行数据读入
+     */
     public SqlNote(Context context, long id) {
         mContext = context;
         mContentResolver = context.getContentResolver();
@@ -166,16 +180,20 @@ public class SqlNote {
 
     }
 
+    /**
+     * 依据id找到cursor加载数据
+     */
     private void loadFromCursor(long id) {
         Cursor c = null;
         try {
+            // 获取id对应的cursor
             c = mContentResolver.query(Notes.CONTENT_NOTE_URI, PROJECTION_NOTE, "(_id=?)",
                     new String[] {
                         String.valueOf(id)
                     }, null);
             if (c != null) {
                 c.moveToNext();
-                loadFromCursor(c);
+                loadFromCursor(c);  // 加载数据进行初始化
             } else {
                 Log.w(TAG, "loadFromCursor: cursor = null");
             }
@@ -185,6 +203,9 @@ public class SqlNote {
         }
     }
 
+    /**
+     * 直接通过cursor加载数据
+     */
     private void loadFromCursor(Cursor c) {
         mId = c.getLong(ID_COLUMN);
         mAlertDate = c.getLong(ALERTED_DATE_COLUMN);
@@ -200,6 +221,9 @@ public class SqlNote {
         mVersion = c.getLong(VERSION_COLUMN);
     }
 
+    /**
+     * 根据实例数据生成cursor，读入到数据库中
+     */
     private void loadDataContent() {
         Cursor c = null;
         mDataList.clear();
@@ -207,13 +231,13 @@ public class SqlNote {
             c = mContentResolver.query(Notes.CONTENT_DATA_URI, SqlData.PROJECTION_DATA,
                     "(note_id=?)", new String[] {
                         String.valueOf(mId)
-                    }, null);
+                    }, null);   // 生成cursor
             if (c != null) {
                 if (c.getCount() == 0) {
                     Log.w(TAG, "it seems that the note has not data");
                     return;
                 }
-                while (c.moveToNext()) {
+                while (c.moveToNext()) {    // 不断读取并写入数据
                     SqlData data = new SqlData(mContext, c);
                     mDataList.add(data);
                 }
@@ -226,6 +250,9 @@ public class SqlNote {
         }
     }
 
+    /**
+     * 设置通过content机制共享的数据信息
+     */
     public boolean setContent(JSONObject js) {
         try {
             JSONObject note = js.getJSONObject(GTaskStringUtils.META_HEAD_NOTE);
@@ -359,6 +386,9 @@ public class SqlNote {
         return true;
     }
 
+    /**
+     * 获取content中的数据并读入
+     */
     public JSONObject getContent() {
         try {
             JSONObject js = new JSONObject();
@@ -369,7 +399,7 @@ public class SqlNote {
             }
 
             JSONObject note = new JSONObject();
-            if (mType == Notes.TYPE_NOTE) {
+            if (mType == Notes.TYPE_NOTE) { // 数据类型为note
                 note.put(NoteColumns.ID, mId);
                 note.put(NoteColumns.ALERTED_DATE, mAlertDate);
                 note.put(NoteColumns.BG_COLOR_ID, mBgColorId);
@@ -385,14 +415,14 @@ public class SqlNote {
                 js.put(GTaskStringUtils.META_HEAD_NOTE, note);
 
                 JSONArray dataArray = new JSONArray();
-                for (SqlData sqlData : mDataList) {
+                for (SqlData sqlData : mDataList) { // 读入各行数据
                     JSONObject data = sqlData.getContent();
                     if (data != null) {
                         dataArray.put(data);
                     }
                 }
                 js.put(GTaskStringUtils.META_HEAD_DATA, dataArray);
-            } else if (mType == Notes.TYPE_FOLDER || mType == Notes.TYPE_SYSTEM) {
+            } else if (mType == Notes.TYPE_FOLDER || mType == Notes.TYPE_SYSTEM) {  // 数据类型为文件夹
                 note.put(NoteColumns.ID, mId);
                 note.put(NoteColumns.TYPE, mType);
                 note.put(NoteColumns.SNIPPET, mSnippet);
@@ -407,19 +437,33 @@ public class SqlNote {
         return null;
     }
 
+    /**
+     * 为当前id设置父id
+     */
     public void setParentId(long id) {
         mParentId = id;
         mDiffNoteValues.put(NoteColumns.PARENT_ID, id);
     }
 
+    /**
+     * 为当前id设置gtaskid
+     * @param gid
+     */
     public void setGtaskId(String gid) {
         mDiffNoteValues.put(NoteColumns.GTASK_ID, gid);
     }
 
+    /**
+     * 为当前id设置同步id
+     * @param syncId
+     */
     public void setSyncId(long syncId) {
         mDiffNoteValues.put(NoteColumns.SYNC_ID, syncId);
     }
 
+    /**
+     * 撤销所有更改信息
+     */
     public void resetLocalModified() {
         mDiffNoteValues.put(NoteColumns.LOCAL_MODIFIED, 0);
     }
@@ -436,10 +480,18 @@ public class SqlNote {
         return mSnippet;
     }
 
+    /**
+     * 判断是否为note类型
+     * @return
+     */
     public boolean isNoteType() {
         return mType == Notes.TYPE_NOTE;
     }
 
+    /**
+     * 将当前修改保存到数据库
+     * @param validateVersion
+     */
     public void commit(boolean validateVersion) {
         if (mIsCreate) {
             if (mId == INVALID_ID && mDiffNoteValues.containsKey(NoteColumns.ID)) {
@@ -457,8 +509,8 @@ public class SqlNote {
                 throw new IllegalStateException("Create thread id failed");
             }
 
-            if (mType == Notes.TYPE_NOTE) {
-                for (SqlData sqlData : mDataList) {
+            if (mType == Notes.TYPE_NOTE) { // 类型为note时保存
+                for (SqlData sqlData : mDataList) { // 依次保存数据
                     sqlData.commit(mId, false, -1);
                 }
             }
@@ -487,8 +539,8 @@ public class SqlNote {
                 }
             }
 
-            if (mType == Notes.TYPE_NOTE) {
-                for (SqlData sqlData : mDataList) {
+            if (mType == Notes.TYPE_NOTE) { // 类型为note时保存
+                for (SqlData sqlData : mDataList) { // 依次保存数据
                     sqlData.commit(mId, validateVersion, mVersion);
                 }
             }
