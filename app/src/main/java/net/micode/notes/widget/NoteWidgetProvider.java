@@ -93,7 +93,7 @@ public abstract class NoteWidgetProvider extends AppWidgetProvider {
     /**
      * @author:  Yi Huang
      * @methodsName: update
-     * @description: 获取 WIDGET_ID 等于给定值的便签的 ID，BG_COLOR_ID，SNIPPET
+     * @description: 更新
      * @param: Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds
      * @return: void
      * @throws:
@@ -105,7 +105,7 @@ public abstract class NoteWidgetProvider extends AppWidgetProvider {
     /**
      * @author:  Yi Huang
      * @methodsName: update
-     * @description: 获取 WIDGET_ID 等于给定值的便签的 ID，BG_COLOR_ID，SNIPPET
+     * @description: 更新
      * @param: Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds, boolean privacyMode
      * @return: void
      * @throws:
