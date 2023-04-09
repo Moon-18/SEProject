@@ -23,23 +23,62 @@ import net.micode.notes.R;
 import net.micode.notes.data.Notes;
 import net.micode.notes.tool.ResourceParser;
 
-
+/**
+ * @version: V1.0
+ * @author: Yi Huang
+ * @className: NoteWidgetProvider_4x
+ * @packageName: widget
+ * @description: 4倍大小的便签小组件
+ * @data: 2023-03-29
+ **/
 public class NoteWidgetProvider_4x extends NoteWidgetProvider {
     @Override
+    /**
+     * @author:  Yi Huang
+     * @methodsName: onUpdate
+     * @description: 更新
+     * @param: Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds
+     * @return: void
+     * @throws:
+     */
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.update(context, appWidgetManager, appWidgetIds);
     }
 
+    /**
+     * @author:  Yi Huang
+     * @methodsName: getLayoutId
+     * @description: 获取布局ID
+     * @param:
+     * @return: int
+     * @throws:
+     */
     protected int getLayoutId() {
         return R.layout.widget_4x;
     }
 
     @Override
+    /**
+     * @author:  Yi Huang
+     * @methodsName: getBgResourceId
+     * @description: 根据背景ID获取背景资源ID
+     * @param: int bgId
+     * @return: int
+     * @throws:
+     */
     protected int getBgResourceId(int bgId) {
         return ResourceParser.WidgetBgResources.getWidget4xBgResource(bgId);
     }
 
     @Override
+    /**
+     * @author:  Yi Huang
+     * @methodsName: getLayoutId
+     * @description: 获取小组件类型
+     * @param:
+     * @return: int
+     * @throws:
+     */
     protected int getWidgetType() {
         return Notes.TYPE_WIDGET_4X;
     }
