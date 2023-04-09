@@ -21,15 +21,15 @@ import java.util.Calendar;
 
 import net.micode.notes.R;
 
-/* @author: gmy
-* @className:     DateTimePicker
-* @packageName: ui
-* @description: 用来定义时间选择器
-* @date: 2023年3月21日11:27:58
-**/
+
+import android.content.Context;
+import android.text.format.DateFormat;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.NumberPicker;
+
 public class DateTimePicker extends FrameLayout {
 
-    //定义一些常量，如一天24小时，一小时60分钟等等
     private static final boolean DEFAULT_ENABLE_STATE = true;
 
     private static final int HOURS_IN_HALF_DAY = 12;
@@ -45,16 +45,13 @@ public class DateTimePicker extends FrameLayout {
     private static final int MINUT_SPINNER_MAX_VAL = 59;
     private static final int AMPM_SPINNER_MIN_VAL = 0;
     private static final int AMPM_SPINNER_MAX_VAL = 1;
-    // 初始化控件
-    // NumberPicker是数字选择器
-    // 这里定义的四个变量全部是在设置闹钟时需要选择的变量（如日期、时、分、上午或者下午）
-    
+
     private final NumberPicker mDateSpinner;
     private final NumberPicker mHourSpinner;
     private final NumberPicker mMinuteSpinner;
     private final NumberPicker mAmPmSpinner;
     private Calendar mDate;
-    // 定义了Calendar类型的变量mDate，用于操作时间
+
     private String[] mDateDisplayValues = new String[DAYS_IN_ALL_WEEK];
 
     private boolean mIsAm;
@@ -66,7 +63,7 @@ public class DateTimePicker extends FrameLayout {
     private boolean mInitialising;
 
     private OnDateTimeChangedListener mOnDateTimeChangedListener;
-    // 这段代码的作用是将mOnDateChangedListener注册到NumberPicker控件中，以便监听用户对该控件进行数值更改时所需执行的操作。
+
     private NumberPicker.OnValueChangeListener mOnDateChangedListener = new NumberPicker.OnValueChangeListener() {
         @Override
         public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
@@ -75,12 +72,7 @@ public class DateTimePicker extends FrameLayout {
             onDateTimeChanged();
         }
     };
-    
-    // 这段代码的作用是将mOnHourChangedListener注册到NumberPicker控件中，以便监听用户对该控件进行小时数更改时所需执行的操作。
-    //这段代码定义了一个名为mOnHourChangedListener的私有成员变量，它是一个NumberPicker . OnValueChangeListener接口的实例对象。该接口用于监听NumberPicker控件值的变化，并在值发生变化时触发相应的操作。
-    // 具体来说，当用户改变NumberPicker控件上的小时数时，onValueChange()方法将被调用。该方法接受三个参数：picker表示当前被改变数值的NumberPicker对象；oldVal表示改变前的数值；newVal表示改变后的数值。
-    // 在onValueChange()方法内部，首先通过判断mIs24HourView和mIsAm属性的值，来确定当前时间是否需要加上或减去一天。如果需要，则使用Calendar类中的add()方法将日期加上或减去一天，并更新isDateChanged标志。然后根据当前时间是否为24小时制和上午/下午状态，计算出新的小时数并设置到mDate对象中。
-    // 接着调用onDateTimeChanged()方法通知监听器日期时间已经发生改变。如果isDateChanged标志为true，则调用setCurrentYear()、setCurrentMonth()和setCurrentDay()方法更新日期控件。
+
     private NumberPicker.OnValueChangeListener mOnHourChangedListener = new NumberPicker.OnValueChangeListener() {
         @Override
         public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
@@ -122,20 +114,7 @@ public class DateTimePicker extends FrameLayout {
             }
         }
     };
-    /*
-     这段代码定义了一个名为mOnMinuteChangedListener的私有成员变量，它是一个NumberPicker . OnValueChangeListener接口的实例对象。该接口用于监听NumberPicker控件值的变化，并在值发生变化时触发相应的操作。
 
-    具体来说，当用户改变NumberPicker控件上的分钟数时，onValueChange()方法将被调用。该方法接受三个参数：picker表示当前被改变数值的NumberPicker对象；oldVal表示改变前的数值；newVal表示改变后的数值。
-
-    在onValueChange()方法内部，首先获取当前分钟数允许的最小和最大值。然后根据oldVal和newVal计算出新旧分钟数之间的偏移量offset。
-
-    接着判断offset是否不等于0。如果不等于0，则调用Calendar类中的add()方法将日期加上或减去一小时，并通过getCurrentHourOfDay()方法获取当前小时数。根据当前小时数是否超过12来判断当前是否为下午，并更新mIsAm属性和amPmSpinner控件。
-
-    最后将新的分钟数设置到mDate对象中，并调用onDateTimeChanged()方法通知监听器日期时间已经发生改变。
-
-    这段代码的作用是将mOnMinuteChangedListener注册到NumberPicker控件中，以便监听用户对该控件进行分钟数更改时所需执行的操作。
-  
-*/
     private NumberPicker.OnValueChangeListener mOnMinuteChangedListener = new NumberPicker.OnValueChangeListener() {
         @Override
         public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
@@ -164,18 +143,7 @@ public class DateTimePicker extends FrameLayout {
             onDateTimeChanged();
         }
     };
-/*
-    这段代码定义了一个名为mOnAmPmChangedListener的私有成员变量，它是一个NumberPicker.OnValueChangeListener接口的实例对象。该接口用于监听NumberPicker控件值的变化，并在值发生改变时触发相应的操作。
 
-    具体来说，当用户改变amPmSpinner控件上的上午/下午状态时，onValueChange()方法将被调用。该方法接受三个参数：picker表示当前被改变数值的NumberPicker对象；oldVal表示改变前的数值；newVal表示改变后的数值。
-
-在onValueChange()方法内部，首先通过将mIsAm属性取反来更新当前时间是上午还是下午。然后根据当前时间是否为下午，使用Calendar类中的add()方法将日期加上或减去12小时。
-
-最后更新amPmSpinner控件，并调用onDateTimeChanged()方法通知监听器日期时间已经发生改变。
-
-这段代码的作用是将mOnAmPmChangedListener注册到amPmSpinner控件中，以便监听用户对该控件进行上午/下午状态更改时所需执行的操作。
-  
-*/
     private NumberPicker.OnValueChangeListener mOnAmPmChangedListener = new NumberPicker.OnValueChangeListener() {
         @Override
         public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
@@ -183,8 +151,8 @@ public class DateTimePicker extends FrameLayout {
             if (mIsAm) {
                 mDate.add(Calendar.HOUR_OF_DAY, -HOURS_IN_HALF_DAY);
             } else {
-                mDate.ad Calendar.HOUR_OF_DAY, HOURS_IN_HALF_DAY);
-            } 
+                mDate.add(Calendar.HOUR_OF_DAY, HOURS_IN_HALF_DAY);
+            }
             updateAmPmControl();
             onDateTimeChanged();
         }
@@ -193,44 +161,23 @@ public class DateTimePicker extends FrameLayout {
     public interface OnDateTimeChangedListener {
         void onDateTimeChanged(DateTimePicker view, int year, int month,
                 int dayOfMonth, int hourOfDay, int minute);
-    } 
-        /**
-         * @author: gmy
-         * @methodsName: DateTimePicker
-         * @description: 根据content信息初始化
-         * @param: Context context
-         * @return: 构造函数 无返回值
-         * @throws:
-         */
+    }
+
     public DateTimePicker(Context context) {
         this(context, System.currentTimeMillis());
     }
-        /**
-         * @author: gmy
-         * @methodsName: DateTimePicker
-         * @description: 作用和上面的差不多，但是参数不同，重载了方法，根据content信息，long date初始化
-         * @param: Context context，long date
-         * @return: 构造函数 无返回值
-         * @throws:
-         */
+
     public DateTimePicker(Context context, long date) {
         this(context, date, DateFormat.is24HourFormat(context));
     }
-        /**
-         * @author: gmy
-         * @methodsName: DateTimePicker
-         * @description: 作用和上面的差不多，但是参数不同，重载了方法，根据不同参数规范化之后，再进行初始化
-         * @param: Context context, long date, boolean is24HourView
-         * @return: 构造函数 无返回值
-         * @throws:
-         */
+
     public DateTimePicker(Context context, long date, boolean is24HourView) {
         super(context);
         mDate = Calendar.getInstance();
         mInitialising = true;
-        mIsAm = getCurre HourOfDay() >= HOURS_IN_HALF_DAY;
-        inflate(context, .layout.datetime_picker, this);
- 
+        mIsAm = getCurrentHourOfDay() >= HOURS_IN_HALF_DAY;
+        inflate(context, R.layout.datetime_picker, this);
+
         mDateSpinner = (NumberPicker) findViewById(R.id.date);
         mDateSpinner.setMinValue(DATE_SPINNER_MIN_VAL);
         mDateSpinner.setMaxValue(DATE_SPINNER_MAX_VAL);
@@ -262,11 +209,11 @@ public class DateTimePicker extends FrameLayout {
         setCurrentDate(date);
 
         setEnabled(isEnabled());
-       
-        // set the       ontent descriptions
+
+        // set the content descriptions
         mInitialising = false;
-    }  
-     
+    }
+
     @Override
     public void setEnabled(boolean enabled) {
         if (mIsEnabled == enabled) {
@@ -275,37 +222,37 @@ public class DateTimePicker extends FrameLayout {
         super.setEnabled(enabled);
         mDateSpinner.setEnabled(enabled);
         mMinuteSpinner.setEnabled(enabled);
-        mHourSpinn       r.setEnabled(enabled);
-        mAmPmSpinne      .setEnabled(enabled);
+        mHourSpinner.setEnabled(enabled);
+        mAmPmSpinner.setEnabled(enabled);
         mIsEnabled = enabled;
-    }  
-     
+    }
+
     @Override
     public boolean isEnabled() {
         return mIsEnabled;
     }
 
-    /**       
-     * Get the curr      nt date in millis
+    /**
+     * Get the current date in millis
      *
-     * @return the curr  nt date in millis
-     */     
+     * @return the current date in millis
+     */
     public long getCurrentDateInTimeMillis() {
         return mDate.getTimeInMillis();
     }
 
-    /**       
-     * Set the curr      nt date
+    /**
+     * Set the current date
      *
-     * @param date The   urrent date in millis
-     */     
-    public void se       CurrentDate(long date) {
-        Calendar c              = Calendar.getInstance();
-        cal.setTim             nMillis(date);
-        setCurrentD      te(  al.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH),
-                cal.      et(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
-    }       
-     
+     * @param date The current date in millis
+     */
+    public void setCurrentDate(long date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(date);
+        setCurrentDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH),
+                cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+    }
+
     /**
      * Set the current date
      *
@@ -348,7 +295,6 @@ public class DateTimePicker extends FrameLayout {
     }
 
     /**
-     * 
      * Get current month in the year
      *
      * @return The current month in the year
@@ -356,24 +302,22 @@ public class DateTimePicker extends FrameLayout {
     public int getCurrentMonth() {
         return mDate.get(Calendar.MONTH);
     }
- 
+
     /**
      * Set current month in the year
      *
      * @param month The month in the year
      */
-    pu 
-     * lic void setCurrentMonth(int month) {
+    public void setCurrentMonth(int month) {
         if (!mInitialising && month == getCurrentMonth()) {
             return;
         }
         mDate.set(Calendar.MONTH, month);
         updateDateControl();
         onDateTimeChanged();
-    } 
+    }
 
     /**
-     * 
      * Get current day of the month
      *
      * @return The day of the month
@@ -381,25 +325,21 @@ public class DateTimePicker extends FrameLayout {
     public int getCurrentDay() {
         return mDate.get(Calendar.DAY_OF_MONTH);
     }
- 
+
     /**
-     * 
      * Set current day of the month
      *
      * @param dayOfMonth The day of the month
      */
     public void setCurrentDay(int dayOfMonth) {
-       
-     * 
-     *  
-     *  if (!mInitialising && dayOfMonth == getCurrentDay()) {
+        if (!mInitialising && dayOfMonth == getCurrentDay()) {
             return;
         }
         mDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         updateDateControl();
         onDateTimeChanged();
     }
-   
+
     /**
      * Get current hour in 24 hour mode, in the range (0~23)
      * @return The current hour in 24 hour mode
@@ -434,7 +374,7 @@ public class DateTimePicker extends FrameLayout {
         if (!mIs24HourView) {
             if (hourOfDay >= HOURS_IN_HALF_DAY) {
                 mIsAm = false;
-                if (hourOfDay >HOURS_IN_HALF_DAY) {
+                if (hourOfDay > HOURS_IN_HALF_DAY) {
                     hourOfDay -= HOURS_IN_HALF_DAY;
                 }
             } else {
@@ -445,7 +385,7 @@ public class DateTimePicker extends FrameLayout {
             }
             updateAmPmControl();
         }
-        mHourSpinner.setValue(hurOfDay);
+        mHourSpinner.setValue(hourOfDay);
         onDateTimeChanged();
     }
 
@@ -455,7 +395,7 @@ public class DateTimePicker extends FrameLayout {
      * @return The Current Minute
      */
     public int getCurrentMinute() {
-        return mDate.get(Calendr.MINUTE);
+        return mDate.get(Calendar.MINUTE);
     }
 
     /**
@@ -477,8 +417,7 @@ public class DateTimePicker extends FrameLayout {
         return mIs24HourView;
     }
 
-    /* 
-     * 
+    /**
      * Set whether in 24 hour or AM/PM mode.
      *
      * @param is24HourView True for 24 hour mode. False for AM/PM mode.
@@ -492,8 +431,7 @@ public class DateTimePicker extends FrameLayout {
         int hour = getCurrentHourOfDay();
         updateHourControl();
         setCurrentHour(hour);
-       
-     *  updateAmPmControl();
+        updateAmPmControl();
     }
 
     private void updateDateControl() {
@@ -504,8 +442,7 @@ public class DateTimePicker extends FrameLayout {
         for (int i = 0; i < DAYS_IN_ALL_WEEK; ++i) {
             cal.add(Calendar.DAY_OF_YEAR, 1);
             mDateDisplayValues[i] = (String) DateFormat.format("MM.dd EEEE", cal);
-       
-     *  }
+        }
         mDateSpinner.setDisplayedValues(mDateDisplayValues);
         mDateSpinner.setValue(DAYS_IN_ALL_WEEK / 2);
         mDateSpinner.invalidate();
@@ -515,8 +452,7 @@ public class DateTimePicker extends FrameLayout {
         if (mIs24HourView) {
             mAmPmSpinner.setVisibility(View.GONE);
         } else {
-       
-     *      int index = mIsAm ? Calendar.AM : Calendar.PM;
+            int index = mIsAm ? Calendar.AM : Calendar.PM;
             mAmPmSpinner.setValue(index);
             mAmPmSpinner.setVisibility(View.VISIBLE);
         }
@@ -524,10 +460,7 @@ public class DateTimePicker extends FrameLayout {
 
     private void updateHourControl() {
         if (mIs24HourView) {
-       
-     * 
-     * 
-     *      mHourSpinner.setMinValue(HOUR_SPINNER_MIN_VAL_24_HOUR_VIEW);
+            mHourSpinner.setMinValue(HOUR_SPINNER_MIN_VAL_24_HOUR_VIEW);
             mHourSpinner.setMaxValue(HOUR_SPINNER_MAX_VAL_24_HOUR_VIEW);
         } else {
             mHourSpinner.setMinValue(HOUR_SPINNER_MIN_VAL_12_HOUR_VIEW);
