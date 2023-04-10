@@ -165,7 +165,7 @@ public class Notes {
          * <P> Type : INTEGER (long) </P>
          */
         public static final String VERSION = "version";
-        public static final String PASSWORD = null;
+        public static final String PASSWORD = "password";
     }
 
     public interface DataColumns {
