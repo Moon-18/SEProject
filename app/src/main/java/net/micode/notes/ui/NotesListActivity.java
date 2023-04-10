@@ -238,7 +238,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             getMenuInflater().inflate(R.menu.note_list_options, menu);
-            menu.findItem(R.id.delete).setOnMenuItemClickListener(this);
+            menu.findItem(R.id.delete).setOnMenuItemClickListener(this);//菜单点击事件
             mMoveMenu = menu.findItem(R.id.move);
             if (mFocusNoteDataItem.getParentId() == Notes.ID_CALL_RECORD_FOLDER
                     || DataUtils.getUserFolderCount(mContentResolver) == 0) {
