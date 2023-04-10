@@ -17,9 +17,18 @@
 package net.micode.notes.data;
 
 import android.net.Uri;
+/**
+ * @version:v1.0
+ * @author:ght
+ * @classname Notes
+ * @packageName:data
+ * @description:定义了许多常量，大多为int型和string型
+ * @date:2023.3.15
+ **/
 public class Notes {
     public static final String AUTHORITY = "micode_notes";
     public static final String TAG = "Notes";
+    //以下三个常量对NoteColumns.TYPE的值进行设置时会用到
     public static final int TYPE_NOTE     = 0;
     public static final int TYPE_FOLDER   = 1;
     public static final int TYPE_SYSTEM   = 2;
@@ -54,13 +63,15 @@ public class Notes {
     /**
      * Uri to query all notes and folders
      */
+    //定义查询便签和文件夹的指针
     public static final Uri CONTENT_NOTE_URI = Uri.parse("content://" + AUTHORITY + "/note");
 
     /**
      * Uri to query data
      */
+    //定义查找数据的指针
     public static final Uri CONTENT_DATA_URI = Uri.parse("content://" + AUTHORITY + "/data");
-
+    //定义NoteColumns的常量，用于后面创建数据库的表头
     public interface NoteColumns {
         /**
          * The unique ID for a row
@@ -165,9 +176,9 @@ public class Notes {
          * <P> Type : INTEGER (long) </P>
          */
         public static final String VERSION = "version";
-        public static final String PASSWORD = null;
-    }
-
+        public static final String PASSWORD = "password";
+    }//这些常量主要是定义便签的属性的
+    //定义DataColumns的常量，用于后面创建数据库的表头
     public interface DataColumns {
         /**
          * The unique ID for a row
@@ -240,7 +251,7 @@ public class Notes {
          * <P> Type: TEXT </P>
          */
         public static final String DATA5 = "data5";
-    }
+    }//主要是定义存储便签内容数据的
 
     public static final class TextNote implements DataColumns {
         /**
@@ -256,7 +267,7 @@ public class Notes {
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/text_note";
 
         public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/text_note");
-    }
+    }//文本内容数据结构
 
     public static final class CallNote implements DataColumns {
         /**
@@ -276,5 +287,5 @@ public class Notes {
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/call_note";
 
         public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/call_note");
-    }
+    }//电话内容的数据结构
 }

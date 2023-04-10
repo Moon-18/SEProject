@@ -30,7 +30,7 @@ import java.util.HashMap;
  * @classname Contact
  * @packageName:data
  * @description:使用数据库查询语言建立与数据库的联系，建立电话和联系人的映射，提供联系人的查询方法
- * @date:2023.3.28
+ * @date:2023.3.28/4.10
 **/
 public class Contact {//联系人类
     private static HashMap<String, String> sContactCache;//cache，用于提升查询速度

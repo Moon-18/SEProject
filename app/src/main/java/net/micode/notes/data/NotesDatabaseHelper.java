@@ -27,12 +27,14 @@ import net.micode.notes.data.Notes.DataConstants;
 import net.micode.notes.data.Notes.NoteColumns;
 
 
+//数据库操作，用SQLOpenhelper,对一些note和文件进行数据库的操作，比如删除文件后，将文件里的note也相应删除
+
 public class NotesDatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "note.db";
 
     private static final int DB_VERSION = 4;
 
-    public interface TABLE {
+    public interface TABLE {//接口，分成note和data，在后面的程序里分别使用过
         public static final String NOTE = "note";
 
         public static final String DATA = "data";
@@ -60,8 +62,9 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
             NoteColumns.LOCAL_MODIFIED + " INTEGER NOT NULL DEFAULT 0," +
             NoteColumns.ORIGIN_PARENT_ID + " INTEGER NOT NULL DEFAULT 0," +
             NoteColumns.GTASK_ID + " TEXT NOT NULL DEFAULT ''," +
-            NoteColumns.VERSION + " INTEGER NOT NULL DEFAULT 0" +
-        ")";
+            NoteColumns.VERSION + " INTEGER NOT NULL DEFAULT 0," +
+            NoteColumns.PASSWORD + " TEXT NOT NULL DEFAULT ''" +
+        ")";//数据库中需要存储的项目的名称，就相当于创建一个表格的表头的内容
 
     private static final String CREATE_DATA_TABLE_SQL =
         "CREATE TABLE " + TABLE.DATA + "(" +
@@ -76,11 +79,11 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
             DataColumns.DATA3 + " TEXT NOT NULL DEFAULT ''," +
             DataColumns.DATA4 + " TEXT NOT NULL DEFAULT ''," +
             DataColumns.DATA5 + " TEXT NOT NULL DEFAULT ''" +
-        ")";
+        ")";//和上面的功能一样，主要是存储的项目不同
 
     private static final String CREATE_DATA_NOTE_ID_INDEX_SQL =
         "CREATE INDEX IF NOT EXISTS note_id_index ON " +
-        TABLE.DATA + "(" + DataColumns.NOTE_ID + ");";
+        TABLE.DATA + "(" + DataColumns.NOTE_ID + ");";//存储便签编号的一个数据表格
 
     /**
      * Increase folder's note count when move note to the folder
@@ -92,7 +95,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         "  UPDATE " + TABLE.NOTE +
         "   SET " + NoteColumns.NOTES_COUNT + "=" + NoteColumns.NOTES_COUNT + " + 1" +
         "  WHERE " + NoteColumns.ID + "=new." + NoteColumns.PARENT_ID + ";" +
-        " END";
+        " END";//在文件夹中移入一个Note之后需要更改的数据的表格。
 
     /**
      * Decrease folder's note count when move note from folder
@@ -105,7 +108,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         "   SET " + NoteColumns.NOTES_COUNT + "=" + NoteColumns.NOTES_COUNT + "-1" +
         "  WHERE " + NoteColumns.ID + "=old." + NoteColumns.PARENT_ID +
         "  AND " + NoteColumns.NOTES_COUNT + ">0" + ";" +
-        " END";
+        " END";//在文件夹中移出一个Note之后需要更改的数据的表格。
 
     /**
      * Increase folder's note count when insert new note to the folder
@@ -117,7 +120,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         "  UPDATE " + TABLE.NOTE +
         "   SET " + NoteColumns.NOTES_COUNT + "=" + NoteColumns.NOTES_COUNT + " + 1" +
         "  WHERE " + NoteColumns.ID + "=new." + NoteColumns.PARENT_ID + ";" +
-        " END";
+        " END";//在文件夹中插入一个Note之后需要更改的数据的表格。
 
     /**
      * Decrease folder's note count when delete note from the folder
@@ -130,7 +133,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         "   SET " + NoteColumns.NOTES_COUNT + "=" + NoteColumns.NOTES_COUNT + "-1" +
         "  WHERE " + NoteColumns.ID + "=old." + NoteColumns.PARENT_ID +
         "  AND " + NoteColumns.NOTES_COUNT + ">0;" +
-        " END";
+        " END";//在文件夹中删除一个Note之后需要更改的数据的表格。
 
     /**
      * Update note's content when insert data with type {@link DataConstants#NOTE}
@@ -143,7 +146,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         "  UPDATE " + TABLE.NOTE +
         "   SET " + NoteColumns.SNIPPET + "=new." + DataColumns.CONTENT +
         "  WHERE " + NoteColumns.ID + "=new." + DataColumns.NOTE_ID + ";" +
-        " END";
+        " END";//在文件夹中对一个Note导入新的数据之后需要更改的数据的表格
 
     /**
      * Update note's content when data with {@link DataConstants#NOTE} type has changed
@@ -156,7 +159,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         "  UPDATE " + TABLE.NOTE +
         "   SET " + NoteColumns.SNIPPET + "=new." + DataColumns.CONTENT +
         "  WHERE " + NoteColumns.ID + "=new." + DataColumns.NOTE_ID + ";" +
-        " END";
+        " END";//Note数据被修改后需要更改的数据的表格
 
     /**
      * Update note's content when data with {@link DataConstants#NOTE} type has deleted
@@ -169,7 +172,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         "  UPDATE " + TABLE.NOTE +
         "   SET " + NoteColumns.SNIPPET + "=''" +
         "  WHERE " + NoteColumns.ID + "=old." + DataColumns.NOTE_ID + ";" +
-        " END";
+        " END";//Note数据被删除后需要更改的数据的表格。
 
     /**
      * Delete datas belong to note which has been deleted
@@ -180,7 +183,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         " BEGIN" +
         "  DELETE FROM " + TABLE.DATA +
         "   WHERE " + DataColumns.NOTE_ID + "=old." + NoteColumns.ID + ";" +
-        " END";
+        " END";//Note数据被删除后需要更改的数据的表格。
 
     /**
      * Delete notes belong to folder which has been deleted
@@ -191,7 +194,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         " BEGIN" +
         "  DELETE FROM " + TABLE.NOTE +
         "   WHERE " + NoteColumns.PARENT_ID + "=old." + NoteColumns.ID + ";" +
-        " END";
+        " END";//Note数据被删除后需要更改的数据的表格。
 
     /**
      * Move notes belong to folder which has been moved to trash folder
@@ -204,18 +207,18 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         "  UPDATE " + TABLE.NOTE +
         "   SET " + NoteColumns.PARENT_ID + "=" + Notes.ID_TRASH_FOLER +
         "  WHERE " + NoteColumns.PARENT_ID + "=old." + NoteColumns.ID + ";" +
-        " END";
+        " END";//还原垃圾桶中便签后需要更改的数据的表格。
 
     public NotesDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
-
+    //还原垃圾桶中便签后需要更改的数据的表格。
     public void createNoteTable(SQLiteDatabase db) {
         db.execSQL(CREATE_NOTE_TABLE_SQL);
         reCreateNoteTableTriggers(db);
         createSystemFolder(db);
         Log.d(TAG, "note table has been created");
-    }
+    }//还原垃圾桶中便签后需要更改的数据的表格。
 
     private void reCreateNoteTableTriggers(SQLiteDatabase db) {
         db.execSQL("DROP TRIGGER IF EXISTS increase_folder_count_on_update");
@@ -233,7 +236,8 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(NOTE_INCREASE_FOLDER_COUNT_ON_INSERT_TRIGGER);
         db.execSQL(FOLDER_DELETE_NOTES_ON_DELETE_TRIGGER);
         db.execSQL(FOLDER_MOVE_NOTES_ON_TRASH_TRIGGER);
-    }
+    }//execSQL是数据库操作的API，主要是更改行为的SQL语句。
+    //在这里主要是用来重新创建上述定义的表格用的，先删除原来有的数据库的触发器再重新创建新的数据库
 
     private void createSystemFolder(SQLiteDatabase db) {
         ContentValues values = new ContentValues();
@@ -268,14 +272,14 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         values.put(NoteColumns.ID, Notes.ID_TRASH_FOLER);
         values.put(NoteColumns.TYPE, Notes.TYPE_SYSTEM);
         db.insert(TABLE.NOTE, null, values);
-    }
+    }//创建几个系统文件夹
 
     public void createDataTable(SQLiteDatabase db) {
         db.execSQL(CREATE_DATA_TABLE_SQL);
         reCreateDataTableTriggers(db);
         db.execSQL(CREATE_DATA_NOTE_ID_INDEX_SQL);
         Log.d(TAG, "data table has been created");
-    }
+    }//创建表格（用来存储标签内容）
 
     private void reCreateDataTableTriggers(SQLiteDatabase db) {
         db.execSQL("DROP TRIGGER IF EXISTS update_note_content_on_insert");
@@ -285,14 +289,16 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(DATA_UPDATE_NOTE_CONTENT_ON_INSERT_TRIGGER);
         db.execSQL(DATA_UPDATE_NOTE_CONTENT_ON_UPDATE_TRIGGER);
         db.execSQL(DATA_UPDATE_NOTE_CONTENT_ON_DELETE_TRIGGER);
-    }
+    }//同上面的execSQL
 
     static synchronized NotesDatabaseHelper getInstance(Context context) {
         if (mInstance == null) {
             mInstance = new NotesDatabaseHelper(context);
         }
         return mInstance;
-    }
+    }//上网查是为解决同一时刻只能有一个线程执行.
+    //在写程序库代码时，有时有一个类需要被所有的其它类使用，
+    //但又要求这个类只能被实例化一次，是个服务类，定义一次，其它类使用同一个这个类的实例
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -322,6 +328,11 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
             oldVersion++;
         }
 
+        if (oldVersion == 4) {
+            upgradeToV5(db);
+            oldVersion++;
+        }
+
         if (reCreateTriggers) {
             reCreateNoteTableTriggers(db);
             reCreateDataTableTriggers(db);
@@ -331,7 +342,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
             throw new IllegalStateException("Upgrade notes database to version " + newVersion
                     + "fails");
         }
-    }
+    }//数据库版本的更新（数据库内容的更改）
 
     private void upgradeToV2(SQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE.NOTE);
@@ -357,6 +368,10 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
 
     private void upgradeToV4(SQLiteDatabase db) {
         db.execSQL("ALTER TABLE " + TABLE.NOTE + " ADD COLUMN " + NoteColumns.VERSION
+                + " INTEGER NOT NULL DEFAULT 0");
+    }
+    private void upgradeToV5(SQLiteDatabase db) {
+        db.execSQL("ALTER TABLE " + TABLE.NOTE + " ADD COLUMN " + NoteColumns.PASSWORD
                 + " INTEGER NOT NULL DEFAULT 0");
     }
 }
