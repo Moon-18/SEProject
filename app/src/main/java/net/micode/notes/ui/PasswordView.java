@@ -1,3 +1,4 @@
+/*
 package net.micode.notes.ui;
 
 import net.micode.notes.model.WorkingNote;
@@ -19,3 +20,4 @@ public class PasswordView {
         return true;
     }
 }
+*/

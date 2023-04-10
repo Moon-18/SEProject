@@ -24,6 +24,16 @@
         android:showAsAction="always|withText" />
 
     <item
+        android:id="@+id/setPwd"
+        android:title="Set Password"
+        android:icon="@drawable/key"
+        android:showAsAction="always|withText"/>
+    <item
+        android:id="@+id/removePwd"
+        android:title="remove Password"
+        android:icon="@drawable/cancel"
+        android:showAsAction="always|withText"/>
+    <item
         android:id="@+id/delete"
         android:title="@string/menu_delete"
         android:icon="@drawable/menu_delete"

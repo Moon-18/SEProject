@@ -72,6 +72,9 @@
     <string name="info_note_enter_desktop">Note added to home</string>
     <string name="alert_message_delete_folder">Confirm to delete folder and its notes?</string>
     <string name="alert_title_delete">Delete selected notes</string>
+    <string name="set_password">Set password</string>
+    <string name="set_password_ok">ok</string>
+    <string name="set_password_cancel">cancel</string>
     <string name="alert_message_delete_notes">Confirm to delete the selected %d notes?</string>
     <string name="alert_message_delete_note">Confirm to delete this note?</string>
     <string name="format_move_notes_to_folder">Have moved selected %1$d notes to %2$s folder</string>

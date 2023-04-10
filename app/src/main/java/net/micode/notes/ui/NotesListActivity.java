@@ -77,6 +77,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashSet;
+import java.util.Random;
 
 public class NotesListActivity extends Activity implements OnClickListener, OnItemLongClickListener {
     private static final int FOLDER_NOTE_LIST_QUERY_TOKEN = 0;
@@ -222,7 +223,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
         mNotesListView.setAdapter(mNotesListAdapter);
         mAddNewNote = (Button) findViewById(R.id.btn_new_note);
         mAddNewNote.setOnClickListener(this);
-        mAddNewNote.setOnTouchListener(new NewNoteOnTouchListener());
+        mAddNewNote.setOnTouchListener(new NewNoteOnTouchListener());//新建便签
         mDispatch = false;
         mDispatchY = 0;
         mOriginY = 0;
@@ -238,7 +239,10 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             getMenuInflater().inflate(R.menu.note_list_options, menu);
-            menu.findItem(R.id.delete).setOnMenuItemClickListener(this);//菜单点击事件
+            menu.findItem(R.id.delete).setOnMenuItemClickListener(this);//设置长按后的图标
+            menu.findItem(R.id.removePwd).setOnMenuItemClickListener(this);//bug
+            menu.findItem(R.id.setPwd).setOnMenuItemClickListener(this);
+
             mMoveMenu = menu.findItem(R.id.move);
             if (mFocusNoteDataItem.getParentId() == Notes.ID_CALL_RECORD_FOLDER
                     || DataUtils.getUserFolderCount(mContentResolver) == 0) {
@@ -339,6 +343,55 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
                 case R.id.move:
                     startQueryDestinationFolders();
                     break;
+                case R.id.removePwd:
+                    AlertDialog.Builder builder2 = new AlertDialog.Builder(NotesListActivity.this);//对话框
+                    builder2.setTitle("取消密码");//title//set_password定义字符串
+                    builder2.setMessage(getString(R.string.alert_message_delete_notes,
+                           mNotesListAdapter.getSelectedCount()));
+                    builder2.setPositiveButton(android.R.string.ok,  new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+                            Toast.makeText(getApplicationContext(), "成功删除密码", Toast.LENGTH_SHORT).show();
+                        }
+                    });//确定和取消
+                    builder2.setNegativeButton(android.R.string.cancel, null);
+                    builder2.show();
+                    break;
+                case R.id.setPwd:
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(NotesListActivity.this);//对话框
+                    builder1.setTitle(getString(R.string.set_password));//title//set_password定义字符串
+                    LayoutInflater inflater = NotesListActivity.this.getLayoutInflater();
+                    View view=inflater.inflate(R.layout.note_encryption, null);
+                    builder1.setView(view);//布局文件
+                    builder1.setPositiveButton(getString(R.string.set_password_ok),  new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+                            //两次密码一样才允许设置
+                            EditText editText1 =(EditText) view.findViewById(R.id.password_input);//关于返回null,应该再当前试图view下获取,否则返回null
+                            String password1=editText1.getText().toString();
+
+                            EditText editText2 =(EditText) view.findViewById(R.id.password_input_repeat);//关于返回null,应该再当前试图view下获取,否则返回null
+                            String password2=editText2.getText().toString();
+                            //弹窗提示是否设置成功
+                            String textInfo="";
+                            if(password1.equals(password2)){
+                                textInfo= "密码设置成功"+password1;
+                                //TODO 调用下层接口，对这条便签设置密码
+                            }else{
+                                textInfo= "密码设置失败,两次不一致";
+                            }
+                            Toast toast = Toast.makeText(getApplicationContext(), textInfo, Toast.LENGTH_SHORT);
+                            toast.show();
+
+                        }
+                    });//确定和取消
+
+                    builder1.setNegativeButton(getString(R.string.set_password_cancel), null);
+                    builder1.show();
+
+
+
+                    break;
                 default:
                     return false;
             }
@@ -351,6 +404,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
         public boolean onTouch(View v, MotionEvent event) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
+                    Toast.makeText(getApplicationContext(), "新建便签", Toast.LENGTH_SHORT).show();
                     Display display = getWindowManager().getDefaultDisplay();
                     int screenHeight = display.getHeight();
                     int newNoteViewHeight = mAddNewNote.getHeight();
@@ -879,7 +933,106 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
     private class OnListItemClickListener implements OnItemClickListener {
 
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//            Toast.makeText(getApplicationContext(), "打开便签", Toast.LENGTH_SHORT).show();
+
             if (view instanceof NotesListItem) {
+                //todo 按照有无密码进行控制，这里先进行模拟
+                Random r = new Random();
+                double d1 = r.nextDouble(); // 生成[0,1.0]区间的小数
+                if(d1>0.5){//需要密码
+//                    if(someObj.hasPassword()){//需要密码
+                    Toast.makeText(getApplicationContext(), "请输入密码", Toast.LENGTH_SHORT).show();
+
+                    //下面是对话框,需要输入密码并校验
+                    AlertDialog.Builder builder2 = new AlertDialog.Builder(NotesListActivity.this);//对话框
+                    builder2.setTitle("输入密码");//title//set_password定义字符串
+                    builder2.setMessage("一个输入框");
+                    builder2.setPositiveButton(android.R.string.ok,  new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+
+                            //直接看做密码正确来处理的
+                            Toast.makeText(getApplicationContext(), "密码正确", Toast.LENGTH_SHORT).show();
+                            NoteItemData item = ((NotesListItem) view).getItemData();
+
+        //todo 密码正确和不需要密码显示逻辑相同，可以优化
+                            switch (mState) {
+                                case NOTE_LIST:
+                                    if (item.getType() == Notes.TYPE_FOLDER
+                                            || item.getType() == Notes.TYPE_SYSTEM) {
+                                        openFolder(item);
+                                    } else if (item.getType() == Notes.TYPE_NOTE) {
+                                        openNode(item);
+                                    } else {
+                                        Log.e(TAG, "Wrong note type in NOTE_LIST");
+                                    }
+                                    break;
+                                case SUB_FOLDER:
+                                case CALL_RECORD_FOLDER:
+                                    if (item.getType() == Notes.TYPE_NOTE) {
+                                        openNode(item);
+                                    } else {
+                                        Log.e(TAG, "Wrong note type in SUB_FOLDER");
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    });//确定和取消
+                    builder2.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+                            Toast.makeText(getApplicationContext(), "密码错误", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    builder2.show();
+                    //上面是对话框,需要输入密码并校验
+
+                }else{//不需要密码
+                    NoteItemData item = ((NotesListItem) view).getItemData();
+                    if (mNotesListAdapter.isInChoiceMode()) {
+                        if (item.getType() == Notes.TYPE_NOTE) {
+                            position = position - mNotesListView.getHeaderViewsCount();
+                            mModeCallBack.onItemCheckedStateChanged(null, position, id,
+                                    !mNotesListAdapter.isSelectedItem(position));
+                        }
+                        return;
+                    }
+
+                    switch (mState) {
+                        case NOTE_LIST:
+                            if (item.getType() == Notes.TYPE_FOLDER
+                                    || item.getType() == Notes.TYPE_SYSTEM) {
+                                openFolder(item);
+                            } else if (item.getType() == Notes.TYPE_NOTE) {
+                                openNode(item);
+                            } else {
+                                Log.e(TAG, "Wrong note type in NOTE_LIST");
+                            }
+                            break;
+                        case SUB_FOLDER:
+                        case CALL_RECORD_FOLDER:
+                            if (item.getType() == Notes.TYPE_NOTE) {
+                                openNode(item);
+                            } else {
+                                Log.e(TAG, "Wrong note type in SUB_FOLDER");
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+            }
+        }
+
+    }
+    //上面方法的备份
+    /*
+    * private class OnListItemClickListener implements OnItemClickListener {
+
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 NoteItemData item = ((NotesListItem) view).getItemData();
                 if (mNotesListAdapter.isInChoiceMode()) {
                     if (item.getType() == Notes.TYPE_NOTE) {
@@ -916,7 +1069,8 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
         }
 
     }
-
+    *
+    * */
     private void startQueryDestinationFolders() {
         String selection = NoteColumns.TYPE + "=? AND " + NoteColumns.PARENT_ID + "<>? AND " + NoteColumns.ID + "<>?";
         selection = (mState == ListEditState.NOTE_LIST) ? selection:

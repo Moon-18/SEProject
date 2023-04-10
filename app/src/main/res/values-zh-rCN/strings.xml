@@ -67,6 +67,7 @@
     <string name="menu_move_parent_folder">上一级文件夹</string>
     <string name="info_note_enter_desktop">已添加到桌面</string>
     <string name="alert_title_delete">删除</string>
+    <string name="set_password">设置密码</string>
     <string name="alert_message_delete_notes">确认要删除所选的 %d 条便签吗?</string>
     <string name="alert_message_delete_note">确认要删除该条便签吗?</string>
     <string name="alert_message_delete_folder">确认删除文件夹及所包含的便签吗？</string>
