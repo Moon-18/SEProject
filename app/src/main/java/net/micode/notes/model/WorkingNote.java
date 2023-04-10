@@ -69,7 +69,9 @@ public class WorkingNote {
 
     private NoteSettingChangedListener mNoteSettingStatusListener;
 
-    public static final String[] DATA_PROJECTION = new String[] {
+    private String mPassword;
+
+    public static final String[] DATA_PROJECTION = new String[]{
             DataColumns.ID,
             DataColumns.CONTENT,
             DataColumns.MIME_TYPE,
@@ -79,13 +81,14 @@ public class WorkingNote {
             DataColumns.DATA4,
     };
 
-    public static final String[] NOTE_PROJECTION = new String[] {
+    public static final String[] NOTE_PROJECTION = new String[]{
             NoteColumns.PARENT_ID,
             NoteColumns.ALERTED_DATE,
             NoteColumns.BG_COLOR_ID,
             NoteColumns.WIDGET_ID,
             NoteColumns.WIDGET_TYPE,
-            NoteColumns.MODIFIED_DATE
+            NoteColumns.MODIFIED_DATE,
+            NoteColumns.PASSWORD,
     };
 
     private static final int DATA_ID_COLUMN = 0;
@@ -108,9 +111,12 @@ public class WorkingNote {
 
     private static final int NOTE_MODIFIED_DATE_COLUMN = 5;
 
+    private static final int NOTE_PASSWORD_COLUMN = 6;
+
     // New note construct
+
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: WorkingNote
      * @description: 构造函数
      * @param: Context context, long noteId
@@ -127,12 +133,14 @@ public class WorkingNote {
         mIsDeleted = false;
         mMode = 0;
         mWidgetType = Notes.TYPE_WIDGET_INVALIDE;
+        mPassword = null;
     }
 
 
     // Existing note construct
+
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: WorkingNote
      * @description: 构造函数
      * @param: Context context, long noteId, long folderId
@@ -145,11 +153,12 @@ public class WorkingNote {
         mFolderId = folderId;
         mIsDeleted = false;
         mNote = new Note();
+        mPassword = null;
         loadNote();
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: loadNote
      * @description: 加载已有的Note
      * @param:
@@ -163,6 +172,8 @@ public class WorkingNote {
                 ContentUris.withAppendedId(Notes.CONTENT_NOTE_URI, mNoteId), NOTE_PROJECTION, null,
                 null, null);
 
+        String password;
+
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 mFolderId = cursor.getLong(NOTE_PARENT_ID_COLUMN);
@@ -171,6 +182,7 @@ public class WorkingNote {
                 mWidgetType = cursor.getInt(NOTE_WIDGET_TYPE_COLUMN);
                 mAlertDate = cursor.getLong(NOTE_ALERTED_DATE_COLUMN);
                 mModifiedDate = cursor.getLong(NOTE_MODIFIED_DATE_COLUMN);
+                mPassword = cursor.getString(NOTE_PASSWORD_COLUMN);
             }
             cursor.close();
         } else {
@@ -181,7 +193,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: loadNoteData
      * @description: 加载NoteData
      * @param:
@@ -192,7 +204,7 @@ public class WorkingNote {
 
         // 在数据库中检索NOTE_ID=mNoteId的row
         Cursor cursor = mContext.getContentResolver().query(Notes.CONTENT_DATA_URI, DATA_PROJECTION,
-                DataColumns.NOTE_ID + "=?", new String[] {
+                DataColumns.NOTE_ID + "=?", new String[]{
                         String.valueOf(mNoteId)
                 }, null);
 
@@ -219,7 +231,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: createEmptyNote
      * @description: 创建空的Note
      * @param: Context context, long folderId, int widgetId, int widgetType, int defaultBgColorId
@@ -236,7 +248,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: load
      * @description: 根据id加载已有的Note
      * @param: Context context, long id
@@ -248,7 +260,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: saveNote
      * @description: 保存Note到数据库；若返回True，则代表保存成功；若返回False，代表保存失败
      * @param:
@@ -279,7 +291,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: existInDatabase
      * @description: 判断Note是否在数据库中存在；若存在，返回True；若不存在，返回False
      * @param:
@@ -291,7 +303,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: isWorthSaving
      * @description: 判断Note是否值得保存；若值得，返回True；若不值得，返回False
      * @param:
@@ -309,7 +321,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: setOnSettingStatusChangedListener
      * @description: 设置NoteSettingChangedListener
      * @param: NoteSettingChangedListener l
@@ -321,7 +333,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: setAlertDate
      * @description: 设置提醒日期
      * @param: long date, boolean set
@@ -339,7 +351,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: markDeleted
      * @description: 删除Note
      * @param: boolean mark
@@ -355,7 +367,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: setBgColorId
      * @description: 设置BgColorId
      * @param: int id
@@ -373,7 +385,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: setCheckListMode
      * @description: 设置文本数据的MODE；若MODE=1，表示在check list；若MODE=0，表示不在check list
      * @param: int mode
@@ -391,7 +403,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: setWidgetType
      * @description: 设置WidgetType
      * @param: int type
@@ -406,7 +418,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: setWidgetId
      * @description: 设置WidgetId
      * @param: int id
@@ -421,7 +433,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: setWorkingText
      * @description: 设置文本
      * @param: String text
@@ -436,7 +448,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: convertToCallNote
      * @description: 转化为通话数据
      * @param: String phoneNumber, long callDate
@@ -450,7 +462,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: hasClockAlert
      * @description: 判断是否有闹钟提醒；若有，返回True；若没有，则返回False
      * @param:
@@ -462,7 +474,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getContent
      * @description: 获取文本
      * @param:
@@ -474,7 +486,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getAlertDate
      * @description: 获取提醒日期
      * @param:
@@ -486,7 +498,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getModifiedDate
      * @description: 获取修改日期
      * @param:
@@ -498,7 +510,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getBgColorResId
      * @description: 获取便签背景颜色资源ID
      * @param:
@@ -510,7 +522,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getBgColorId
      * @description: 获取便签背景颜色ID
      * @param:
@@ -522,7 +534,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getTitleBgResId
      * @description: 获取标题背景颜色ID
      * @param:
@@ -534,7 +546,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getCheckListMode
      * @description: 获取CheckListMode；若Note在check list中，返回True；若Note不在check list中，返回False
      * @param:
@@ -546,7 +558,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getNoteId
      * @description: 获取Note对应的ID
      * @param:
@@ -558,7 +570,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getFolderId
      * @description: 获取Note所在文件夹的ID
      * @param:
@@ -570,7 +582,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getWidgetId
      * @description: 获取WidgetId
      * @param:
@@ -582,7 +594,7 @@ public class WorkingNote {
     }
 
     /**
-     * @author:  Yi Huang
+     * @author: Yi Huang
      * @methodsName: getWidgetType
      * @description: 获取WidgetType
      * @param:
@@ -592,6 +604,19 @@ public class WorkingNote {
     public int getWidgetType() {
         return mWidgetType;
     }
+
+
+    public void setPassword(String password) {
+        if (!TextUtils.equals(mPassword, password)) {
+            mPassword = password;
+            mNote.setNoteValue(NoteColumns.PASSWORD, mPassword);
+        }
+    }
+
+    public boolean hasPassword() {
+        return !TextUtils.isEmpty(mPassword);
+    }
+
 
     /**
      * @version: V1.0
@@ -606,7 +631,7 @@ public class WorkingNote {
          * Called when the background color of current note has just changed
          */
         /**
-         * @author:  Yi Huang
+         * @author: Yi Huang
          * @methodsName: onBackgroundColorChanged
          * @description: 在当前笔记的背景颜色刚刚改变时被调用
          * @param:
@@ -619,7 +644,7 @@ public class WorkingNote {
          * Called when user set clock
          */
         /**
-         * @author:  Yi Huang
+         * @author: Yi Huang
          * @methodsName: onClockAlertChanged
          * @description: 在用户设置闹钟时被调用
          * @param:
@@ -632,7 +657,7 @@ public class WorkingNote {
          * Call when user create note from widget
          */
         /**
-         * @author:  Yi Huang
+         * @author: Yi Huang
          * @methodsName: onWidgetChanged
          * @description: 当用户从小部件创建笔记时被调用
          * @param:
@@ -647,7 +672,7 @@ public class WorkingNote {
          * @param newMode is new mode
          */
         /**
-         * @author:  Yi Huang
+         * @author: Yi Huang
          * @methodsName: onCheckListModeChanged
          * @description: 清单模式和普通模式切换时被调用
          * @param: int oldMode, int newMode
