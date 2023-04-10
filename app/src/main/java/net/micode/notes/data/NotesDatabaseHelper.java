@@ -59,6 +59,7 @@ public class NotesDatabaseHelper extends SQLiteOpenHelper {
             NoteColumns.SYNC_ID + " INTEGER NOT NULL DEFAULT 0," +
             NoteColumns.LOCAL_MODIFIED + " INTEGER NOT NULL DEFAULT 0," +
             NoteColumns.ORIGIN_PARENT_ID + " INTEGER NOT NULL DEFAULT 0," +
+            NoteColumns.GTASK_ID + " TEXT NOT NULL DEFAULT ''," +
             NoteColumns.VERSION + " INTEGER NOT NULL DEFAULT 0," +
             NoteColumns.PASSWORD + " TEXT NOT NULL DEFAULT ''" +
         ")";
