@@ -390,6 +390,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
                                 String test = "";//选中的一系列id
                                 for(Long id:choosed){
                                     test+=id+"";//TODO 利用id设置密码
+
                                 }
                                 Toast.makeText(getApplicationContext(), "选中的是"+test, Toast.LENGTH_SHORT).show();
                             } else {
@@ -957,7 +958,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
                 final EditText inputPassword = new EditText(NotesListActivity.this);//用户输入的密码
                 double d1 = r.nextDouble(); // 生成[0,1.0]区间的小数
                 if (d1 > 0.5 && !mNotesListAdapter.isInChoiceMode()) {//需要密码,且不处于选中状态
-//                    if(someObj.hasPassword()){//TODO 判断是否需要密码 替换掉上面一行
+//                    if(someObj.hasPassword()&&!mNotesListAdapter.isInChoiceMode()){//TODO 判断是否需要密码 替换掉上面一行
 //                    Toast.makeText(getApplicationContext(), "请输入密码", Toast.LENGTH_SHORT).show();
 
                     //下面是对话框,需要输入密码并校验
@@ -971,7 +972,7 @@ public class NotesListActivity extends Activity implements OnClickListener, OnIt
 
                             //TODO 判断密码是否正确,一个if else 不正确return即可
 
-                            Toast.makeText(getApplicationContext(), "密码正确，密码是" + inputPassword.getText().toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "id是"+id+"密码正确，密码是" + inputPassword.getText().toString(), Toast.LENGTH_SHORT).show();
                             NoteItemData item = ((NotesListItem) view).getItemData();
 
                             //todo 密码正确和不需要密码显示逻辑相同，可以优化
