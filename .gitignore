@@ -24,3 +24,4 @@ import-summary.txt
 local.properties
 NOTICE
 settings.gradle
+sonar-project.properties
